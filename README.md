@@ -61,6 +61,36 @@ class ServerConfig {
 }
 ```
 
+#### TypeScript class field compatibility
+
+`@Env` supports both legacy TypeScript decorators and TC39 standard field decorators.
+
+When using legacy decorators (`"experimentalDecorators": true`), `@Env` installs a getter on the class prototype. TypeScript 5 emits own instance fields by default when `target` is `ES2022` or newer, or when `"useDefineForClassFields": true`; those own fields shadow the prototype getter.
+
+For legacy decorators, use one of these options:
+
+- Set `"useDefineForClassFields": false` in `tsconfig.json`.
+- Compile with `target` set to `ES2021` or older.
+- Mark decorated fields with `declare` so TypeScript does not emit an own field:
+
+```typescript
+class ServerConfig {
+  @Env({ type: Number, default: 3000 })
+  declare port: number;
+}
+```
+
+With TC39 standard decorators (TypeScript 5+, without `"experimentalDecorators": true`), `@Env` uses a field initializer and works with modern class-field semantics:
+
+```typescript
+class ServerConfig {
+  @Env({ type: Number, default: 3000 })
+  port!: number;
+}
+```
+
+Standard decorators do not provide TypeScript design-type metadata, so pass `type` when string environment values need conversion.
+
 ### @PushTo
 Collects decorated property names into an array. Useful for metadata collection and reflection.
 

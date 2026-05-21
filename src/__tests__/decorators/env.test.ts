@@ -92,4 +92,47 @@ describe('@Env', () => {
     const test = new Test();
     expect(test.value).toBe('test-suffix');
   });
+
+  it('should support TC39 standard field decorator initializers', () => {
+    process.env.STANDARD_PORT = '8080';
+
+    const initializer = Env({ type: Number, key: 'STANDARD_PORT' })(
+      undefined,
+      { kind: 'field', name: 'port' }
+    );
+
+    expect(initializer.call({}, undefined)).toBe(8080);
+  });
+
+  it('should evaluate TC39 standard decorator defaults against the instance', () => {
+    const initializer = Env({
+      default: (target: any) => target.prefix + '-suffix',
+    })(
+      undefined,
+      { kind: 'field', name: 'value' }
+    );
+
+    expect(initializer.call({ prefix: 'test' }, undefined)).toBe('test-suffix');
+  });
+
+  it('documents the legacy decorator limitation with own field definitions', () => {
+    process.env.SHADOWED_VALUE = 'visible-on-prototype';
+
+    class Test {
+      @Env({ key: 'SHADOWED_VALUE' })
+      shadowedValue: string;
+
+      constructor() {
+        Object.defineProperty(this, 'shadowedValue', {
+          value: undefined,
+          enumerable: true,
+          configurable: true,
+          writable: true,
+        });
+      }
+    }
+
+    const test = new Test();
+    expect(test.shadowedValue).toBeUndefined();
+  });
 }); 

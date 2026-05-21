@@ -1,6 +1,6 @@
 {
   "name": "flambo",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Lightweight TypeScript decorators for building modular class-based applications",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
